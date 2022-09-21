@@ -1,4 +1,4 @@
-module github.com/loafoe/prometheus-solaxcloud-exporter
+module github.com/loafoe/prometheus-solaxrt-exporter
 
 go 1.19
 

@@ -1,4 +1,4 @@
-package solaxcloud
+package solax
 
 import (
 	"context"
@@ -8,11 +8,13 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-func GetRealtimeInfo(ctx context.Context, opts ...OptionFunc) (*Response, error) {
+func GetRealtimeInfo[K any](ctx context.Context, opts ...OptionFunc) (*K, error) {
 	client := resty.New()
 
-	request := client.R()
-	request.Method = http.MethodGet
+	request := client.R().SetQueryParams(map[string]string{
+		"optType": "ReadRealTimeData",
+	})
+	request.Method = http.MethodPost
 	request, _ = WithDefaultURL()(client, request)
 
 	for _, o := range opts {
@@ -26,7 +28,7 @@ func GetRealtimeInfo(ctx context.Context, opts ...OptionFunc) (*Response, error)
 	if err != nil {
 		return nil, err
 	}
-	var jsonResponse Response
+	var jsonResponse K
 	err = json.Unmarshal(resp.Body(), &jsonResponse)
 	if err != nil {
 		return nil, err

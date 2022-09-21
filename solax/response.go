@@ -1,4 +1,4 @@
-package solaxcloud
+package solax
 
 import (
 	"encoding/json"

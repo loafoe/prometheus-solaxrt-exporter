@@ -6,19 +6,21 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
-	"github.com/loafoe/prometheus-solaxcloud-exporter/solaxcloud"
+	"github.com/loafoe/prometheus-solaxrt-exporter/solax"
+	"github.com/loafoe/prometheus-solaxrt-exporter/solax/inverter"
+	"github.com/loafoe/prometheus-solaxrt-exporter/solax/inverter/fields"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var listenAddr string
+var apiAddr string
 var debug bool
 
 var (
-	metricNamePrefix = "solaxcloud_"
+	metricNamePrefix = "solaxrt_"
 	registry         = prometheus.NewRegistry()
 )
 
@@ -61,38 +63,36 @@ func init() {
 func main() {
 	flag.BoolVar(&debug, "debug", false, "Enable debugging")
 	flag.StringVar(&listenAddr, "listen", "0.0.0.0:8887", "Listen address for HTTP metrics")
+	flag.StringVar(&apiAddr, "address", "http://5.8.8.8", "The address of the Realtime Inverter interface")
 	flag.Parse()
-
-	sn := os.Getenv("SOLAXCLOUD_SN")
-	tokenId := os.Getenv("SOLAXCLOUD_TOKEN_ID")
 
 	go func() {
 		sleep := false
 		for {
 			if sleep {
-				time.Sleep(time.Second * 60) // 5 minute resolution, so we poll every minute for now
+				time.Sleep(time.Second * 5)
 			}
 			sleep = true
 			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 
-			fmt.Printf("calling SolaxCloud...\n")
-			resp, err := solaxcloud.GetRealtimeInfo(ctx,
-				solaxcloud.WithSNAndTokenID(sn, tokenId),
-				solaxcloud.WithDebug(debug))
+			fmt.Printf("calling Realtime API...\n")
+			resp, err := solax.GetRealtimeInfo[inverter.X1BoostAirMini](ctx,
+				solax.WithURL(apiAddr),
+				solax.WithDebug(debug))
 			cancel()
 			if err != nil {
 				fmt.Printf("error: %v\n", err)
-				upMetric.WithLabelValues(sn).Set(0)
+				upMetric.WithLabelValues("").Set(0)
 				if errors.Is(err, context.DeadlineExceeded) {
 					fmt.Printf("not sleeping\n")
 					sleep = false
 				}
 				continue
 			}
-			yieldTodayMetric.WithLabelValues(resp.Result.InverterSN).Set(resp.Result.YieldToday)
-			yieldTotalMetrics.WithLabelValues(resp.Result.InverterSN).Set(resp.Result.YieldTotal)
-			acPowerMetric.WithLabelValues(resp.Result.InverterSN).Set(resp.Result.ACPower)
-			upMetric.WithLabelValues(sn).Set(1.0)
+			yieldTodayMetric.WithLabelValues(resp.SN).Set(resp.Field(fields.Todays_Energy))
+			yieldTotalMetrics.WithLabelValues(resp.SN).Set(resp.Field(fields.Total_Energy))
+			acPowerMetric.WithLabelValues(resp.SN).Set(resp.Field(fields.AC_Power))
+			upMetric.WithLabelValues("").Set(1.0)
 		}
 	}()
 
