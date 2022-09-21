@@ -1,28 +1,21 @@
-# prometheus-solaxcloud-exporter
+# prometheus-solaxrt-exporter
 
-Prometheus exporter for [SolaxCloud](https://www.solaxcloud.com) data
+Prometheus exporter for Realtime Solax Inverter readouts
 
 ## Install
 
-Using Go 1.18 or newer
+Using Go 1.19 or newer
 
 ```shell
-go install github.com/loafoe/prometheus-solaxcloud-exporter@latest
+go install github.com/loafoe/prometheus-solaxrt-exporter@latest
 ```
 
 ## Usage
 
-### Set credentials
-
-```shell
-export SOLAXCLOUD_SN=your-sn
-export SOLAXCLOUD_TOKEN_ID=your-token
-```
-
 ### Run exporter
 
 ```shell
-prometheus-solaxcloud-exporter -listen 0.0.0.0:8887
+prometheus-solaxcloud-exporter -listen 0.0.0.0:8886
 ```
 
 ### Ship to prometheus
@@ -37,7 +30,7 @@ metrics:
         - job_name: 'solaxcloud_exporter'
           scrape_interval: 2m
           static_configs:
-            - targets: ['localhost:8887']
+            - targets: ['localhost:8886']
       remote_write:
         - url: https://prometheus.example.com/api/v1/write
           basic_auth:

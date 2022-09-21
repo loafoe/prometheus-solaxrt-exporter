@@ -62,7 +62,7 @@ func init() {
 
 func main() {
 	flag.BoolVar(&debug, "debug", false, "Enable debugging")
-	flag.StringVar(&listenAddr, "listen", "0.0.0.0:8887", "Listen address for HTTP metrics")
+	flag.StringVar(&listenAddr, "listen", "0.0.0.0:8886", "Listen address for HTTP metrics")
 	flag.StringVar(&apiAddr, "address", "http://5.8.8.8", "The address of the Realtime Inverter interface")
 	flag.Parse()
 
