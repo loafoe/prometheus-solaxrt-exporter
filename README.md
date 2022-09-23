@@ -44,6 +44,10 @@ metrics:
             password: S0m3pAssW0rdH3Re
 ```
 
+## Acknowledgement
+
+API field mappings discovered from project https://github.com/squishykid/solax -- kudos!
+
 ## License
 
 License is MIT
