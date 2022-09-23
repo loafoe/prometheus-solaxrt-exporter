@@ -2,6 +2,12 @@
 
 Prometheus exporter for Realtime Solax Inverter readouts
 
+## Usage
+
+This exporter is only tested with an X1-Boost-Mini Inverter with a Pocket Wifi dongle. The host should have a direct Wifi connection to the Pocket Wifi network. In practice, this means you'll probably want a dedicated compute module (Raspberry Pi) connected to this network. The default `http://5.8.8.8` hardcoded IP address is unfortunately publicly routable (pointing to a host in Russia of all places!). 
+
+> The exporter contains code which ensures direct connectivity to the Picket Wifi before attempting to query the real-time API endpoint.
+
 ## Install
 
 Using Go 1.19 or newer
@@ -28,7 +34,7 @@ metrics:
     - name: default
       scrape_configs:
         - job_name: 'solaxcloud_exporter'
-          scrape_interval: 2m
+          scrape_interval: 2s
           static_configs:
             - targets: ['localhost:8886']
       remote_write:
