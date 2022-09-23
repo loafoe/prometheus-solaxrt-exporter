@@ -80,6 +80,7 @@ func main() {
 			ok, _ := solax.LocallyReachable(apiAddr)
 			if !ok {
 				fmt.Printf("address %s is not locally reachable, skipping refresh...\n", apiAddr)
+				continue
 			}
 			fmt.Printf("calling Realtime API at %s...\n", apiAddr)
 			resp, err := solax.GetRealtimeInfo[inverter.X1BoostAirMini](ctx,
