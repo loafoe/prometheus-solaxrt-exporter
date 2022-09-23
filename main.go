@@ -16,6 +16,7 @@ import (
 )
 
 var listenAddr string
+var ethDevice string
 var apiAddr string
 var debug bool
 
@@ -64,18 +65,23 @@ func main() {
 	flag.BoolVar(&debug, "debug", false, "Enable debugging")
 	flag.StringVar(&listenAddr, "listen", "0.0.0.0:8886", "Listen address for HTTP metrics")
 	flag.StringVar(&apiAddr, "address", "http://5.8.8.8", "The address of the Realtime Inverter interface")
+	flag.StringVar(&ethDevice, "device", "wlan0", "The ethernet device to check for Pocket wifi")
 	flag.Parse()
 
 	go func() {
 		sleep := false
 		for {
 			if sleep {
-				time.Sleep(time.Second * 5)
+				time.Sleep(time.Second * 2)
 			}
 			sleep = true
 			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 
-			fmt.Printf("calling Realtime API...\n")
+			ok, _ := solax.LocallyReachable(apiAddr)
+			if !ok {
+				fmt.Printf("address %s is not locally reachable, skipping refresh...\n", apiAddr)
+			}
+			fmt.Printf("calling Realtime API at %s...\n", apiAddr)
 			resp, err := solax.GetRealtimeInfo[inverter.X1BoostAirMini](ctx,
 				solax.WithURL(apiAddr),
 				solax.WithDebug(debug))
