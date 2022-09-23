@@ -1,6 +1,6 @@
 # prometheus-solaxrt-exporter
 
-Prometheus exporter for Realtime Solax Inverter readouts
+Prometheus exporter for real-time Solax Inverter data readouts
 
 ## Usage
 
