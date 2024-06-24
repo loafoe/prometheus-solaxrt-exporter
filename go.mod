@@ -1,6 +1,6 @@
 module github.com/loafoe/prometheus-solaxrt-exporter
 
-go 1.19
+go 1.22
 
 require (
 	github.com/go-resty/resty/v2 v2.13.1
