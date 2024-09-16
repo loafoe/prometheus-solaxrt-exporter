@@ -3,7 +3,7 @@ module github.com/loafoe/prometheus-solaxrt-exporter
 go 1.22
 
 require (
-	github.com/go-resty/resty/v2 v2.14.0
+	github.com/go-resty/resty/v2 v2.15.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/stretchr/testify v1.9.0
 )
