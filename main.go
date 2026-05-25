@@ -21,6 +21,8 @@ var apiAddr string
 var debug bool
 var scrapeInterval time.Duration
 var lastKnownSN string
+var lastSuccessTime time.Time
+var staleDataTimeout = 10 * time.Minute
 
 var (
 	metricNamePrefix = "solaxrt_"
@@ -116,10 +118,6 @@ func main() {
 
 			if err != nil {
 				fmt.Printf("error: %v\n", err)
-				upMetric.WithLabelValues("").Set(0)
-				if lastKnownSN != "" {
-					acPowerMetric.WithLabelValues(lastKnownSN).Set(0)
-				}
 				consecutiveErrors++
 
 				if errors.Is(err, context.DeadlineExceeded) {
@@ -128,12 +126,21 @@ func main() {
 					scrapeErrorsMetric.WithLabelValues("request").Inc()
 				}
 
+				// Only zero out metrics if data is stale (older than 10 minutes)
+				if time.Since(lastSuccessTime) > staleDataTimeout {
+					upMetric.WithLabelValues("").Set(0)
+					if lastKnownSN != "" {
+						acPowerMetric.WithLabelValues(lastKnownSN).Set(0)
+					}
+				}
+
 				backoffSleep(consecutiveErrors, scrapeInterval, maxBackoff)
 				continue
 			}
 
 			consecutiveErrors = 0
 			lastKnownSN = resp.SN
+			lastSuccessTime = time.Now()
 			scrapeSuccessMetric.Inc()
 			yieldTodayMetric.WithLabelValues(resp.SN).Set(resp.Field(fields.Todays_Energy))
 			yieldTotalMetrics.WithLabelValues(resp.SN).Set(resp.Field(fields.Total_Energy))
